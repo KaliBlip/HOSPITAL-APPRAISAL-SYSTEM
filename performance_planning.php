@@ -40,7 +40,7 @@ foreach ($planning_data as $item) {
     $appraisals[$item['appraisal_id']][] = $item;
 }
 ?>
-
+<link rel="stylesheet" href="sidebar.css">
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -77,178 +77,185 @@ foreach ($planning_data as $item) {
     </style>
 </head>
 <body>
-    <div class="container-fluid py-4">
+    <div class="container-fluid">
         <div class="row">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h1 class="h3 mb-1">Performance Planning</h1>
-                        <p class="text-muted mb-0">
-                            <?php if ($role == 'appraiser'): ?>
-                                Performance plans you've created for your appraisees
-                            <?php else: ?>
-                                Your performance plans and targets
-                            <?php endif; ?>
-                        </p>
-                    </div>
-                    <a href="dashboard.php" class="btn btn-outline-primary">
-                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
-                    </a>
-                </div>
-
-                <?php if (empty($planning_data)): ?>
-                    <div class="planning-card text-center py-5">
-                        <i class="fas fa-bullseye fa-4x text-muted mb-3"></i>
-                        <h4 class="text-muted">No Performance Plans Found</h4>
-                        <p class="text-muted mb-4">
-                            <?php if ($role == 'appraiser'): ?>
-                                You haven't created any performance plans yet. Start by creating an appraisal with performance planning.
-                            <?php else: ?>
-                                No performance plans have been created for you yet. Contact your supervisor to begin the performance planning process.
-                            <?php endif; ?>
-                        </p>
-                        <?php if ($role == 'appraiser'): ?>
-                        <a href="create_appraisal.php" class="btn btn-primary">
-                            <i class="fas fa-plus me-2"></i>Create New Appraisal
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 px-0">
+                <?php include 'sidebar.php'; ?>
+            </div>
+            
+            <div class="col-md-9 col-lg-10 px-0">
+                <div class="main-content p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h1 class="h3 mb-1">Performance Planning</h1>
+                            <p class="text-muted mb-0">
+                                <?php if ($role == 'appraiser'): ?>
+                                    Performance plans you've created for your appraisees
+                                <?php else: ?>
+                                    Your performance plans and targets
+                                <?php endif; ?>
+                            </p>
+                        </div>
+                        <a href="dashboard.php" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
                         </a>
-                        <?php endif; ?>
                     </div>
-                <?php else: ?>
-                    <?php foreach ($appraisals as $appraisal_id => $plans): ?>
-                        <?php $first_plan = $plans[0]; ?>
-                        <div class="planning-card">
-                            <div class="planning-header">
-                                <div class="row align-items-center">
-                                    <div class="col-md-8">
-                                        <?php if ($role == 'appraiser'): ?>
-                                            <h4 class="mb-1"><?php echo htmlspecialchars($first_plan['first_name'] . ' ' . $first_plan['last_name']); ?></h4>
-                                            <p class="mb-0 opacity-75"><?php echo htmlspecialchars($first_plan['job_title'] ?? 'N/A'); ?> - <?php echo htmlspecialchars($first_plan['department'] ?? 'N/A'); ?></p>
-                                        <?php else: ?>
-                                            <h4 class="mb-1">My Performance Plan</h4>
-                                            <p class="mb-0 opacity-75">Supervised by: <?php echo htmlspecialchars($first_plan['appraiser_fname'] . ' ' . $first_plan['appraiser_lname']); ?></p>
+
+                    <?php if (empty($planning_data)): ?>
+                        <div class="planning-card text-center py-5">
+                            <i class="fas fa-bullseye fa-4x text-muted mb-3"></i>
+                            <h4 class="text-muted">No Performance Plans Found</h4>
+                            <p class="text-muted mb-4">
+                                <?php if ($role == 'appraiser'): ?>
+                                    You haven't created any performance plans yet. Start by creating an appraisal with performance planning.
+                                <?php else: ?>
+                                    No performance plans have been created for you yet. Contact your supervisor to begin the performance planning process.
+                                <?php endif; ?>
+                            </p>
+                            <?php if ($role == 'appraiser'): ?>
+                            <a href="create_appraisal.php" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Create New Appraisal
+                            </a>
+                            <?php endif; ?>
+                        </div>
+                    <?php else: ?>
+                        <?php foreach ($appraisals as $appraisal_id => $plans): ?>
+                            <?php $first_plan = $plans[0]; ?>
+                            <div class="planning-card">
+                                <div class="planning-header">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-8">
+                                            <?php if ($role == 'appraiser'): ?>
+                                                <h4 class="mb-1"><?php echo htmlspecialchars($first_plan['first_name'] . ' ' . $first_plan['last_name']); ?></h4>
+                                                <p class="mb-0 opacity-75"><?php echo htmlspecialchars($first_plan['job_title'] ?? 'N/A'); ?> - <?php echo htmlspecialchars($first_plan['department'] ?? 'N/A'); ?></p>
+                                            <?php else: ?>
+                                                <h4 class="mb-1">My Performance Plan</h4>
+                                                <p class="mb-0 opacity-75">Supervised by: <?php echo htmlspecialchars($first_plan['appraiser_fname'] . ' ' . $first_plan['appraiser_lname']); ?></p>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="col-md-4 text-end">
+                                            <?php
+                                            $status_class = '';
+                                            $status_text = ucfirst(str_replace('_', ' ', $first_plan['status']));
+                                            
+                                            switch($first_plan['status']) {
+                                                case 'draft':
+                                                    $status_class = 'bg-secondary';
+                                                    break;
+                                                case 'planning':
+                                                    $status_class = 'bg-info';
+                                                    break;
+                                                case 'mid_review':
+                                                    $status_class = 'bg-warning';
+                                                    break;
+                                                case 'final_review':
+                                                    $status_class = 'bg-primary';
+                                                    break;
+                                                case 'completed':
+                                                    $status_class = 'bg-success';
+                                                    break;
+                                            }
+                                            ?>
+                                            <span class="badge status-badge <?php echo $status_class; ?>">
+                                                <?php echo $status_text; ?>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="p-4">
+                                    <h5 class="mb-3">
+                                        <i class="fas fa-bullseye me-2 text-primary"></i>Key Result Areas & Targets
+                                    </h5>
+
+                                    <?php foreach ($plans as $index => $plan): ?>
+                                        <div class="kra-card">
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <h6 class="text-primary mb-2">
+                                                        <i class="fas fa-flag me-1"></i>KRA <?php echo $index + 1; ?>
+                                                    </h6>
+                                                    <p class="mb-0"><?php echo nl2br(htmlspecialchars($plan['key_result_area'])); ?></p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <h6 class="text-success mb-2">
+                                                        <i class="fas fa-target me-1"></i>Target
+                                                    </h6>
+                                                    <p class="mb-0"><?php echo nl2br(htmlspecialchars($plan['target'])); ?></p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <h6 class="text-info mb-2">
+                                                        <i class="fas fa-tools me-1"></i>Resources Required
+                                                    </h6>
+                                                    <p class="mb-0"><?php echo nl2br(htmlspecialchars($plan['resources_required'] ?? 'None specified')); ?></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+
+                                    <?php if (!empty($first_plan['competencies_required'])): ?>
+                                        <div class="mt-4">
+                                            <h6 class="text-warning mb-2">
+                                                <i class="fas fa-graduation-cap me-1"></i>Key Competencies Required
+                                            </h6>
+                                            <div class="alert alert-light">
+                                                <?php echo nl2br(htmlspecialchars($first_plan['competencies_required'])); ?>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <div class="mt-4 text-end">
+                                        <a href="view_appraisal.php?id=<?php echo $appraisal_id; ?>" class="btn btn-outline-primary me-2">
+                                            <i class="fas fa-eye me-1"></i>View Full Appraisal
+                                        </a>
+                                        <?php if ($role == 'appraiser' && in_array($first_plan['status'], ['draft', 'planning'])): ?>
+                                        <a href="edit_appraisal.php?id=<?php echo $appraisal_id; ?>" class="btn btn-primary">
+                                            <i class="fas fa-edit me-1"></i>Edit Plan
+                                        </a>
                                         <?php endif; ?>
                                     </div>
-                                    <div class="col-md-4 text-end">
-                                        <?php
-                                        $status_class = '';
-                                        $status_text = ucfirst(str_replace('_', ' ', $first_plan['status']));
-                                        
-                                        switch($first_plan['status']) {
-                                            case 'draft':
-                                                $status_class = 'bg-secondary';
-                                                break;
-                                            case 'planning':
-                                                $status_class = 'bg-info';
-                                                break;
-                                            case 'mid_review':
-                                                $status_class = 'bg-warning';
-                                                break;
-                                            case 'final_review':
-                                                $status_class = 'bg-primary';
-                                                break;
-                                            case 'completed':
-                                                $status_class = 'bg-success';
-                                                break;
-                                        }
-                                        ?>
-                                        <span class="badge status-badge <?php echo $status_class; ?>">
-                                            <?php echo $status_text; ?>
-                                        </span>
-                                    </div>
                                 </div>
                             </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
 
-                            <div class="p-4">
-                                <h5 class="mb-3">
-                                    <i class="fas fa-bullseye me-2 text-primary"></i>Key Result Areas & Targets
-                                </h5>
-
-                                <?php foreach ($plans as $index => $plan): ?>
-                                    <div class="kra-card">
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <h6 class="text-primary mb-2">
-                                                    <i class="fas fa-flag me-1"></i>KRA <?php echo $index + 1; ?>
-                                                </h6>
-                                                <p class="mb-0"><?php echo nl2br(htmlspecialchars($plan['key_result_area'])); ?></p>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <h6 class="text-success mb-2">
-                                                    <i class="fas fa-target me-1"></i>Target
-                                                </h6>
-                                                <p class="mb-0"><?php echo nl2br(htmlspecialchars($plan['target'])); ?></p>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <h6 class="text-info mb-2">
-                                                    <i class="fas fa-tools me-1"></i>Resources Required
-                                                </h6>
-                                                <p class="mb-0"><?php echo nl2br(htmlspecialchars($plan['resources_required'] ?? 'None specified')); ?></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-
-                                <?php if (!empty($first_plan['competencies_required'])): ?>
-                                    <div class="mt-4">
-                                        <h6 class="text-warning mb-2">
-                                            <i class="fas fa-graduation-cap me-1"></i>Key Competencies Required
-                                        </h6>
-                                        <div class="alert alert-light">
-                                            <?php echo nl2br(htmlspecialchars($first_plan['competencies_required'])); ?>
-                                        </div>
-                                    </div>
-                                <?php endif; ?>
-
-                                <div class="mt-4 text-end">
-                                    <a href="view_appraisal.php?id=<?php echo $appraisal_id; ?>" class="btn btn-outline-primary me-2">
-                                        <i class="fas fa-eye me-1"></i>View Full Appraisal
-                                    </a>
-                                    <?php if ($role == 'appraiser' && in_array($first_plan['status'], ['draft', 'planning'])): ?>
-                                    <a href="edit_appraisal.php?id=<?php echo $appraisal_id; ?>" class="btn btn-primary">
-                                        <i class="fas fa-edit me-1"></i>Edit Plan
-                                    </a>
-                                    <?php endif; ?>
+                    <!-- Performance Planning Guidelines -->
+                    <div class="planning-card">
+                        <div class="planning-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Performance Planning Guidelines
+                            </h5>
+                        </div>
+                        <div class="p-4">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="text-primary">Key Result Areas (KRAs)</h6>
+                                    <ul class="mb-4">
+                                        <li>Should not exceed 5 areas</li>
+                                        <li>Must be drawn from job description</li>
+                                        <li>Should cover major responsibilities</li>
+                                        <li>Must be measurable and specific</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-success">SMART Targets</h6>
+                                    <ul class="mb-4">
+                                        <li><strong>S</strong>pecific - Clear and well-defined</li>
+                                        <li><strong>M</strong>easurable - Quantifiable results</li>
+                                        <li><strong>A</strong>chievable - Realistic goals</li>
+                                        <li><strong>R</strong>elevant - Aligned with objectives</li>
+                                        <li><strong>T</strong>ime-bound - Clear deadlines</li>
+                                    </ul>
                                 </div>
                             </div>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-
-                <!-- Performance Planning Guidelines -->
-                <div class="planning-card">
-                    <div class="planning-header">
-                        <h5 class="mb-0">
-                            <i class="fas fa-info-circle me-2"></i>Performance Planning Guidelines
-                        </h5>
-                    </div>
-                    <div class="p-4">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h6 class="text-primary">Key Result Areas (KRAs)</h6>
-                                <ul class="mb-4">
-                                    <li>Should not exceed 5 areas</li>
-                                    <li>Must be drawn from job description</li>
-                                    <li>Should cover major responsibilities</li>
-                                    <li>Must be measurable and specific</li>
-                                </ul>
+                            <div class="alert alert-info">
+                                <h6><i class="fas fa-lightbulb me-2"></i>Best Practices</h6>
+                                <p class="mb-2">• Collaborate with your supervisor/appraisee when setting targets</p>
+                                <p class="mb-2">• Regularly review progress throughout the year</p>
+                                <p class="mb-2">• Ensure alignment with departmental and organizational goals</p>
+                                <p class="mb-0">• Document any changes or updates made during the period</p>
                             </div>
-                            <div class="col-md-6">
-                                <h6 class="text-success">SMART Targets</h6>
-                                <ul class="mb-4">
-                                    <li><strong>S</strong>pecific - Clear and well-defined</li>
-                                    <li><strong>M</strong>easurable - Quantifiable results</li>
-                                    <li><strong>A</strong>chievable - Realistic goals</li>
-                                    <li><strong>R</strong>elevant - Aligned with objectives</li>
-                                    <li><strong>T</strong>ime-bound - Clear deadlines</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="alert alert-info">
-                            <h6><i class="fas fa-lightbulb me-2"></i>Best Practices</h6>
-                            <p class="mb-2">• Collaborate with your supervisor/appraisee when setting targets</p>
-                            <p class="mb-2">• Regularly review progress throughout the year</p>
-                            <p class="mb-2">• Ensure alignment with departmental and organizational goals</p>
-                            <p class="mb-0">• Document any changes or updates made during the period</p>
                         </div>
                     </div>
                 </div>
